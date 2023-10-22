@@ -32,8 +32,6 @@ To compile assimp:
 
 On linux, you can get the number of cores with `nproc`, on Mac, you can get it with `sysctl -n hw.ncpu`.
 
-This project uses GLFW for its windowing system
-
 ## Todos
 - [ ] Object picking and placing. It's currently _really_ tedious to design scenes. My process was to nudge an object, compile, see the results, then repeat.
 - [ ] Fix weird artifacts that occur at interface of water and terrain.
