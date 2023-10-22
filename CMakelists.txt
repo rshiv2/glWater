@@ -6,6 +6,22 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_CXX_FLAGS " -Werror -std=c++17")
 
+message("${CMAKE_SYSTEM_PROCESSOR}")
+string(FIND ${CMAKE_SYSTEM_PROCESSOR} "x86_64" x86_pos) 
+string(FIND ${CMAKE_SYSTEM_PROCESSOR} "arm" arm_pos)
+if (x86_pos GREATER_EQUAL 0)
+    message("Using x86_64")
+    set(GLFW_LIB "lib-x86_64")
+elseif(arm_pos GREATER_EQUAL 0)
+    message("Using arm64")
+    set(GLFW_LIB "lib-arm64")
+else()
+    message("Using universal")
+    set(GLFW_LIB "lib-universal")
+endif()
+
+
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/external/glfw/include/
     ${CMAKE_SOURCE_DIR}/external/glad/include/
@@ -18,7 +34,7 @@ add_library(glad STATIC ${CMAKE_SOURCE_DIR}/external/glad/src/glad.c)
 set_target_properties(glad PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/external/glad/src)
 
 add_library(glfw3 STATIC IMPORTED)
-set_target_properties(glfw3 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/glfw/lib-x86_64/libglfw3.a)
+set_target_properties(glfw3 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/glfw/${GLFW_LIB}/libglfw3.a)
 
 add_library(assimp SHARED IMPORTED)
 set_target_properties(assimp PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/assimp/bin/libassimp.dylib)
