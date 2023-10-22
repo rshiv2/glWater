@@ -1,0 +1,60 @@
+cmake_minimum_required(VERSION 3.26)
+project(OPENGL_WATER)
+
+find_package(OpenGL REQUIRED)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
+set(CMAKE_CXX_FLAGS " -Werror -std=c++17")
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}/external/glfw/include/
+    ${CMAKE_SOURCE_DIR}/external/glad/include/
+    ${CMAKE_SOURCE_DIR}/external/assimp/include/
+    ${CMAKE_SOURCE_DIR}/external/
+    ${CMAKE_SOURCE_DIR}/include/
+)
+
+add_library(glad STATIC ${CMAKE_SOURCE_DIR}/external/glad/src/glad.c)
+set_target_properties(glad PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/external/glad/src)
+
+add_library(glfw3 STATIC IMPORTED)
+set_target_properties(glfw3 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/glfw/lib-x86_64/libglfw3.a)
+
+add_library(assimp SHARED IMPORTED)
+set_target_properties(assimp PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/assimp/bin/libassimp.dylib)
+
+set(ALL_LIBS
+    ${OPENGL_LIBRARY}
+    glad
+    glfw3
+    assimp
+)
+
+set(FRAMEWORKS
+    "-framework Cocoa" 
+    "-framework OpenGL"
+    "-framework IOKit"
+    "-framework Corevideo"
+)
+
+add_executable(main
+    main.cpp
+    include/shader.cpp
+    include/Model.cpp
+    include/mesh.cpp
+)
+
+target_link_libraries(main ${ALL_LIBS} ${FRAMEWORKS})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+
+add_executable(debug
+    main.cpp
+    include/shader.cpp
+    include/Model.cpp
+    include/mesh.cpp
+)
+
+target_link_libraries(debug ${ALL_LIBS} ${FRAMEWORKS})
+
+
