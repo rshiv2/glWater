@@ -63,7 +63,7 @@ class PointLight
 {
     public:
 
-        PointLight(const std::string& path); 
+        PointLight(const std::string& path, bool translateToOrigin = true); 
 
         glm::vec3 position() const {
             return _position + _translation;
@@ -139,14 +139,15 @@ class PointLight
         glm::vec3 _position;
         float _kConstant = 1.0f, _kLinear = 0.7f, _kQuadratic = 1.8;    // arbitrary values
 
-        glm::vec3 _translation = glm::vec3(0.0f);
+        glm::mat4 _toOrigin;
+        glm::vec3 _translation;
         glm::vec3 _scale = glm::vec3(1.0f);
 };
 
-PointLight::PointLight(const std::string& path) { 
+PointLight::PointLight(const std::string& path, bool translateToOrigin /* = true */) { 
     _position = glm::vec3(0.0f);
     _model = new Model(path.c_str());
-    _modelMat = glm::mat4(1.0f);
+    _toOrigin = translateToOrigin ? glm::translate(-_model->centroid()) : glm::mat4(1.0f);
 }
 
 void PointLight::draw(Shader* shader)
@@ -160,9 +161,9 @@ void PointLight::setShaderUniforms(Shader* shader)
 
     shader->setVec3("color", _diffuse);
     
-    glm::mat4 translation = glm::translate(_modelMat, _translation);
-    glm::mat4 scale = glm::scale(_modelMat, _scale);
-    glm::mat4 modelMat = translation * scale;
+    glm::mat4 translation = glm::translate(_translation);
+    glm::mat4 scale = glm::scale(_scale);
+    glm::mat4 modelMat = translation * scale * _toOrigin;
 
     shader->setMat4("model", modelMat);
     glm::mat4 invTransposeModelMat = glm::inverseTranspose(modelMat);

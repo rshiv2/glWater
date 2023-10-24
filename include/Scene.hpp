@@ -11,7 +11,8 @@ class Scene {
         ~Scene() {
             delete skyBox;
         }
-        Skybox* skyBox;
+        
+        Skybox* skyBox = nullptr;
         std::vector<Entity> entities;
         std::vector<PointLight> pointLights;
         std::vector<DirLight> dirLights;

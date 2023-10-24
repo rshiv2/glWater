@@ -24,6 +24,10 @@ class Model
             _model = m;
         }
 
+        glm::vec3 centroid() const {
+            return _centroid;
+        }
+
         void draw(Shader &shader);	
     private:
         // model data
@@ -40,6 +44,8 @@ class Model
 
         // transforms
         glm::mat4 _model;
+        glm::vec3 _centroid;    // compute on construction
+        int _numVertices = 0;
 };
 
 #endif // MODEL_H

@@ -10,8 +10,9 @@ class Entity
 {
     public:
 
-        Entity(const std::string& path) {
+        Entity(const std::string& path, bool translateToOrigin = true) {
             _model = new Model(path.c_str());
+            _toOrigin = translateToOrigin ? glm::translate(-_model->centroid()) : glm::mat4(1.0f);
         }
 
         void translate(glm::vec3 t) {
@@ -34,6 +35,10 @@ class Entity
             _scale *= s;
         }
 
+        void scale(float s) {
+            _scale *= s;
+        }
+
         void draw(Shader* shader) {
             setShaderUniforms(shader);
             _model->draw(*shader);
@@ -47,11 +52,11 @@ class Entity
     private:
         Model* _model;
 
+        glm::mat4 _toOrigin;
         glm::vec3 _translation = glm::vec3(0.0f);
         glm::vec3 _rotation = glm::vec3(0.0f);
         glm::vec3 _scale = glm::vec3(1.0f);
 
-        //glm::mat4 _modelMat;
         float _texCoordScale = 1.0f;
 
 };
@@ -71,7 +76,7 @@ void Entity::setShaderUniforms(Shader* shader)
 
     glm::mat4 rotation = rotZ * rotY * rotX;
     glm::mat4 scale = glm::scale(_scale);
-    glm::mat4 modelMat = translation * rotation * scale;
+    glm::mat4 modelMat = translation * rotation * scale * _toOrigin;
     glm::mat4 invTransposeModelMat = glm::inverseTranspose(modelMat);
 
     shader->setMat4("model", modelMat);

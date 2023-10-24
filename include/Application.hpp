@@ -60,7 +60,7 @@ class Application
         float _deltaTime;   // time since previous frame
         float _prevFrame;   // time of previous frame
         float _prevMouseX, _prevMouseY; // position of mouse at previous frame
-        bool _firstMouse;   // first time we are reading mouse position?
+        bool _firstMouse;   // is first time we are reading mouse position
 
         Shader* _entityShader;
         Shader* _lightSourceShader;
@@ -77,6 +77,7 @@ Application::Application(unsigned int viewportWidth, unsigned int viewportHeight
 
     _deltaTime = 0.0f;
     _prevFrame = 0.0f;
+    _firstMouse = true;
 
     _entityShader      = new Shader("../include/Entity/shader.vert", "../include/Entity/shader.frag");
     _lightSourceShader = new Shader("../include/LightSource/shader.vert", "../include/LightSource/shader.frag");
@@ -120,7 +121,10 @@ void Application::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderScene(_camera);
-        renderReflection();
+
+        if (!_scene->waters.empty()) {
+            renderReflection();
+        }
 
         glfwSwapBuffers(_window);
         glfwPollEvents();
@@ -239,7 +243,7 @@ void Application::processInput(GLFWwindow* window) {
     float currentFrame = glfwGetTime();
     _deltaTime = currentFrame - _prevFrame;
     _prevFrame = currentFrame;
-    _camera->setSpeed(2.5f * _deltaTime);
+    _camera->scaleSpeed(_deltaTime * 60.0f);
     _camera->process_input(window);
 }
 
@@ -260,7 +264,6 @@ void Application::renderScene(const Camera* cam)
     }
 
     // render entities
-    // Shader* entityShader = _scene->entities[0].getShader();
     _entityShader->use();
     _entityShader->setMat4("view", view);
     _entityShader->setMat4("projection", projection);
@@ -271,12 +274,14 @@ void Application::renderScene(const Camera* cam)
         entity.draw(_entityShader);
     }
 
-    // Shader* skyBoxShader = _scene->skyBox->getShader();
-    _skyBoxShader->use();
-    glm::mat4 viewWithoutTranslation = glm::mat4(glm::mat3(view));
-    _skyBoxShader->setMat4("view", viewWithoutTranslation);
-    _skyBoxShader->setMat4("projection", projection);
-    _scene->skyBox->draw(_skyBoxShader); 
+    // render skybox if it exists
+    if (_scene->skyBox != nullptr) {
+        _skyBoxShader->use();
+        glm::mat4 viewWithoutTranslation = glm::mat4(glm::mat3(view));
+        _skyBoxShader->setMat4("view", viewWithoutTranslation);
+        _skyBoxShader->setMat4("projection", projection);
+        _scene->skyBox->draw(_skyBoxShader); 
+    }
 }
 
 void Application::renderReflection()

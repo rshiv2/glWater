@@ -22,6 +22,8 @@ void Model::loadModel(const std::string path)
     _directory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene);
+        
+    _centroid /= _numVertices;      // both values computed in processNode()
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
@@ -51,6 +53,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
         vertex.Position = vector;
+
+        // update centroid
+        _centroid += vector;
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
@@ -128,6 +133,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     }
 
     Mesh m(vertices, indices, textures, diffuseColor, specularColor, shininess);
+    _numVertices += vertices.size();
     return m;
 }
 

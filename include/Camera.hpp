@@ -93,8 +93,11 @@ class Camera {
             _pitch = std::min(_maxPitch, std::max(_minPitch, pitch));
         }
 
-        void setSpeed(const float speed) {
-            _moveSensitivity = speed;
+        void setMoveSensitivity(const float s) {
+            _moveSensitivity = std::max(s, 0.001f);
+        }
+        void scaleSpeed(const float speed) {
+            _moveSensitivityScale = speed;
         }
 
         /*** Event listeners ***/
@@ -111,13 +114,13 @@ class Camera {
             } 
 
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
-                _position += _moveSensitivity * glm::vec3(_front.x, 0.0f, _front.z);
+                _position += _moveSensitivity * _moveSensitivityScale * glm::vec3(_front.x, 0.0f, _front.z);
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-                _position -= _moveSensitivity * glm::vec3(_front.x, 0.0f, _front.z);
+                _position -= _moveSensitivity * _moveSensitivityScale * glm::vec3(_front.x, 0.0f, _front.z);
             if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-                _position -= glm::normalize(glm::cross(_front, _up)) * _moveSensitivity;
+                _position -= glm::normalize(glm::cross(_front, _up)) * _moveSensitivity * _moveSensitivityScale;
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-                _position += glm::normalize(glm::cross(_front, _up)) * _moveSensitivity;
+                _position += glm::normalize(glm::cross(_front, _up)) * _moveSensitivity * _moveSensitivityScale;
         }
 
         void mouse_callback(double xOffset, double yOffset) {
@@ -153,10 +156,10 @@ class Camera {
         float _pitch = 0.0f;
         const float _maxPitch = 89.9f, _minPitch = -89.9f;
 
-        float _moveSensitivity = 0.05f;
+        float _moveSensitivity = 0.5f;
+        float _moveSensitivityScale = 1.0f;
         float _lookSensitivity = 0.1f;
         float _scrollSensitivity = 1.0f;
-
 };
 
 
